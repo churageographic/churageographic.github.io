@@ -22,6 +22,8 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1/i18n/jquery.ui.datepicker-ja.min.js"></script>
 
+<link href="index.css" rel="stylesheet">
+
 <script>
 
 function getTodayStr() {
@@ -88,6 +90,8 @@ function getDataToday(data, dateStr) {
 }
 
 var lineChart;
+var lineChart1;
+var lineChart2;
 
 function drawChart(data, dateStr) {
     var ctx = document.getElementById("chart");
@@ -121,9 +125,10 @@ function drawChart(data, dateStr) {
                     borderWidth: pointSize * 0.75,
                 },
                 point: {
-                    radius: pointSize,
+                    pointStyle: "circle",
+                    radius: pointSize * 0.75,
                     borderWidth: pointSize,
-                    hoverRadius: pointSize,
+                    hoverRadius: pointSize * 0.75,
                     hoverBorderWidth: pointSize,
                     hitRadius: pointSize * 1.5,
                 }
@@ -153,21 +158,52 @@ function drawChart(data, dateStr) {
                 }
             },
             scales: {
+                x: {
+                    ticks: {
+                        autoSkip: false,
+                        maxRotation: 0,
+                        minRotation: 0,
+                        maxTicksLimit: getMaxTickLimit(),
+                        color: COLOR.MIDNIGHTBLUE,
+                        font: { size: getFontSize() },
+                        callback: function(val, index) {
+                            return index % getTickDivision() == 0 ? val : "";
+                        }
+                    }
+                },
                 y: {
+                    ticks: {
+                        stepSize: 30,
+                        /*callback: function(val, index) {
+                            if (index == 1 || val == 240) return val;
+                            return index % 2 == 0 ? val : "";
+                        }*/
+                    },
                     min: -30,
-                    max: 250
+                    max: 240,
+                    grid: {
+                        color: function(context) {
+                            if (context.tick.value == 0) {
+                                return "#9e9e9e";
+                            } else {
+                                return "#E5E5E5";
+                            }
+                        }
+                    }
                 }
             }
         },
         plugins:[ DataLabelPluginPoint, VerticalLinePlugin ],
         }
     );
+    lineChart1 = lineChart;
+    lineChart2 = lineChart;
 }
 
-const colors = {
-    blue: "#1e90ff",
-    midnightblue: "#0000cd",
-    aquamarine: "#7fffd4"
+const COLOR = {
+    BLUE: "#1e90ff",
+    MIDNIGHTBLUE: "#0000cd",
+    AQUAMARINE: "#7fffd4"
 };
 let width, height, gradient;
 function getGradient(ctx, chartArea) {
@@ -175,9 +211,9 @@ function getGradient(ctx, chartArea) {
         width = chartArea.right - chartArea.left;
         height = chartArea.bottom - chartArea.top;
         gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
-        gradient.addColorStop(1, colors.midnightblue);
-        gradient.addColorStop(0.5, colors.blue);
-        gradient.addColorStop(0, colors.aquamarine);
+        gradient.addColorStop(1, COLOR.MIDNIGHTBLUE);
+        gradient.addColorStop(0.5, COLOR.BLUE);
+        gradient.addColorStop(0, COLOR.AQUAMARINE);
     }
     return gradient;
 }
@@ -235,14 +271,49 @@ var VerticalLinePlugin = {
     }
 };
 
+const MIN_WIDTH = {
+    W1200: "(min-width: 1200px)",
+    W960: "(min-width: 960px)",
+    W720: "(min-width: 720px)",
+    W480: "(min-width: 480px)",
+};
+
+function getTickDivision() {
+    if( window.matchMedia(MIN_WIDTH.W1200).matches) {
+        return 1;
+    } else if( window.matchMedia(MIN_WIDTH.W960).matches) {
+        return 2;
+    } else if( window.matchMedia(MIN_WIDTH.W720).matches) {
+        return 2;
+    } else if( window.matchMedia(MIN_WIDTH.W480).matches) {   
+        return 3;
+    } else {
+        return 3;
+    }
+}
+
+function getMaxTickLimit() {
+    if( window.matchMedia(MIN_WIDTH.W1200).matches) {
+        return 25;
+    } else if( window.matchMedia(MIN_WIDTH.W960).matches) {
+        return 13;
+    } else if( window.matchMedia(MIN_WIDTH.W720).matches) {
+        return 13;
+    } else if( window.matchMedia(MIN_WIDTH.W480).matches) {
+        return 9;
+    } else {
+        return 9;
+    }
+}
+
 function getPointSize() {
-    if( window.matchMedia("(min-width: 1200px)").matches) {
-        return 6;
-    } else if( window.matchMedia("(min-width: 960px)").matches) {
+    if( window.matchMedia(MIN_WIDTH.W1200).matches) {
         return 5;
-    } else if( window.matchMedia("(min-width: 720px)").matches) {
+    } else if( window.matchMedia(MIN_WIDTH.W960).matches) {
+        return 5;
+    } else if( window.matchMedia(MIN_WIDTH.W720).matches) {
         return 4;
-    } else if( window.matchMedia("(min-width: 480px)").matches) {
+    } else if( window.matchMedia(MIN_WIDTH.W480).matches) {
         return 3;
     } else {
         return 2;
@@ -250,13 +321,13 @@ function getPointSize() {
 }
 
 function getFontSize() {
-    if( window.matchMedia("(min-width: 1200px)").matches) {
+    if( window.matchMedia(MIN_WIDTH.W1200).matches) {
         return 22.5;
-    } else if( window.matchMedia("(min-width: 960px)").matches) {
+    } else if( window.matchMedia(MIN_WIDTH.W960).matches) {
         return 18.75;
-    } else if( window.matchMedia("(min-width: 720px)").matches) {
+    } else if( window.matchMedia(MIN_WIDTH.W720).matches) {
         return 15;
-    } else if( window.matchMedia("(min-width: 480px)").matches) {
+    } else if( window.matchMedia(MIN_WIDTH.W480).matches) {
         return 11.25;
     } else {
         return 7.5;
@@ -371,7 +442,7 @@ $(function() {
     initDateButton("prevDate", - 1);
     initDateButton("nextDate", + 1);
     initClearStorageButton();
-
+    
     getData();
 });
 
@@ -390,47 +461,6 @@ $(document).ajaxComplete(function(){
 });
 
 </script>
-
-<style>
-
-.inputWithIcon input[type="text"] {
-    border: 1px solid #aaa;
-    height: 28px;
-    border-radius: 4px;
-    margin: 12px 0;
-    font-size: 17px;
-    color: #444;
-    outline: none;
-    padding: 8px;
-    box-sizing: border-box;
-    padding-left: 30px;
-    width: 160px;
-}
-
-.inputWithIcon {
-    position: relative;
-    display: inline-block;
-}
-
-.inputWithIcon i {
-    position: absolute;
-    left: 2px;
-    top: 8px;
-    padding: 9px 8px;
-    color: #aaa;
-}
-
-.buttonWithIcon {
-    height: 28px;
-    width: 34px;
-    position: relative;
-    display: inline-block;
-    border: 1px solid #aaa;
-    border-radius: 4px;
-    color: #444;
-}
-
-</style>
 </head>
 
 <body>
@@ -442,7 +472,7 @@ $(document).ajaxComplete(function(){
             <i class="fas fa-chevron-left"></i>
         </button>
         <div class="inputWithIcon">
-            <input type="text" id="date" autocomplete="off">
+            <input type="text" id="date" autocomplete="off" readonly="readonly">
             <i class="far fa-calendar-alt" aria-hidden="true"></i>
         </div>
         <button id="nextDate" class="buttonWithIcon">
@@ -451,7 +481,7 @@ $(document).ajaxComplete(function(){
 
     </div>
 
-    <canvas id="chart"></canvas>
+    <canvas id="chart" class="item"></canvas>
 
     <!--div style="text-align: center;">
         <input type="button" id="clearStorage" value="キャッシュ削除">
