@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>Tides</title>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.4.0/chart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@2.1.7/dist/loadingoverlay.min.js"></script>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">    
+
+<link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet">
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1/i18n/jquery.ui.datepicker-ja.min.js"></script>
+
+<script>
+
+function getTodayStr() {
+    return formatDate(new Date());
+}
+
+function formatDate(dt) {
+    const y = dt.getFullYear();
+    const m = ("00" + (dt.getMonth()+1)).slice(-2);
+    const d = ("00" + dt.getDate()).slice(-2);
+    const dow = [ "日", "月", "火", "水", "木", "金", "土" ][dt.getDay()];
+    return `${y}/${m}/${d} (${dow})`;
+}
+
+function getData() {
+    const dateStr = $("#date").val().replace(/\//g, "-").split(" ")[0];
+    const year = dateStr.substr(0, 4);
+    const area = $("#area option:selected").val();
+
+    const strageKey = area + year;
+    if (localStorage.getItem(strageKey) != null) {
+        const response = JSON.parse(localStorage.getItem(strageKey));
+        drawChart(getDataToday(response, dateStr), dateStr);
+    } else {
+        const areaPref = area.substr(0, 2);
+        const areaPoi = area.substr(2);
+        const json_url = `https://churageographic.github.io/data/${areaPref}/${areaPoi}/${year}.json`;
+        //console.log(json_url);
+        $.get(json_url, function (response) {
+            if (response.warn || response.error) {
+                for (let key in response) {
+                    if (response.warn) toastr.warning(response.warn);
+                    else toastr.error(response.error);
+                }
+                return;
+            }
+            localStorage.setItem(strageKey, JSON.stringify(response));
+            drawChart(getDataToday(response, dateStr), dateStr);
+        }, "json")
+        .fail(function(jqXHR) {
+            toastr.error(`「 ${$("#area option:selected").text()}の情報を取得できませんでした`)
+        });
+    }
+}
+
+function getDataToday(data, dateStr) {
+    var timeList = [];
+    var levelList = [];
+    for (var i = 0; i < data.length; i++) {
+        if (dateStr != data[i].d) continue;
+        timeList.push(data[i].t);
+        levelList.push(data[i].l);
+        // 24時(翌日の0時も表示する為 VerticalLinePlugin()と関連)
+        if (data[i].t == 23) {
+            timeList.push(24);
+            // 12/31の翌日=翌年度分は未定義
+            levelList.push(data.length != i + 1 ? data[i + 1].l : 0);
+        }
+    }
+    return {
+        time: timeList,
+        level: levelList
+    };
+}
+
+var lineChart;
+
+function drawChart(data, dateStr) {
+    var ctx = document.getElementById("chart");
+    const pointSize = getPointSize();
+    const tooltipFontSize = getFontSize();
+    if (lineChart) lineChart.destroy();
+    lineChart = new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: data.time,
+            datasets: [{
+                label: dateStr,
+                data: data.level,
+                borderColor: "#15A0C8",
+                backgroundColor: "rgba(0,0,255,0.05)",
+                fill: true,
+                borderColor: function(context) {
+                    const chart = context.chart;
+                    const {ctx, chartArea} = chart;
+                    if (!chartArea) return null;
+                    return getGradient(ctx, chartArea);
+                },
+            }],
+        },
+        options: {
+            animation: false,
+            responsive: true,
+            elements: {
+                line: {
+                    tension: 0.35, 
+                    borderWidth: pointSize * 0.75,
+                },
+                point: {
+                    radius: pointSize,
+                    borderWidth: pointSize,
+                    hoverRadius: pointSize,
+                    hoverBorderWidth: pointSize,
+                    hitRadius: pointSize * 1.5,
+                }
+            },
+            plugins: {
+                title: {
+                    display: false,
+                    text: "",
+                    font: {
+                        size: getFontSize(),
+                    }
+                },
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    titleFont: { size: tooltipFontSize },
+                    bodyFont: { size: tooltipFontSize * 1.25 },
+                    callbacks: {
+                        title: function(context) {
+                            return `${context[0].dataset.label} ${context[0].parsed.x}:00`;
+                        },
+                        label: function(context) {
+                            return ` ${context.parsed.y}cm`;
+                        }
+                    }                
+                }
+            },
+            scales: {
+                y: {
+                    min: -30,
+                    max: 250
+                }
+            }
+        },
+        plugins:[ DataLabelPluginPoint, VerticalLinePlugin ],
+        }
+    );
+}
+
+const colors = {
+    blue: "#1e90ff",
+    midnightblue: "#0000cd",
+    aquamarine: "#7fffd4"
+};
+let width, height, gradient;
+function getGradient(ctx, chartArea) {
+    if (gradient == null) {
+        width = chartArea.right - chartArea.left;
+        height = chartArea.bottom - chartArea.top;
+        gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+        gradient.addColorStop(1, colors.midnightblue);
+        gradient.addColorStop(0.5, colors.blue);
+        gradient.addColorStop(0, colors.aquamarine);
+    }
+    return gradient;
+}
+
+var DataLabelPluginPoint = { 
+    afterDatasetsDraw: function(chart, easing) {
+        chart.data.datasets.forEach(function(dataset, i) {
+            var ctx = chart.ctx;
+            ctx.save();
+            var dataset = chart.data.datasets[0];
+            var meta = chart.getDatasetMeta(0);
+            meta.data.forEach( function (element, index) {
+                ctx.fillStyle = "#666666";
+                var fontSize = getFontSize();
+                var fontStyle = "normal";
+                var fontFamily = "Helvetica Neue";
+                ctx.font = Chart.helpers.fontString(fontSize, fontStyle, fontFamily);
+                var dataString = dataset.data[index].toString();
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                var padding = 20;
+                var position = element.tooltipPosition();
+                ctx.fillText(dataString, position.x, position.y - (fontSize / 2) - padding);
+            });
+            ctx.restore();
+        });
+    }
+}
+
+var VerticalLinePlugin = {
+    afterDatasetDraw: function (chart, easing) {
+        if (easing.meta.data.length == 0) return;
+
+        const date = new Date();
+        const h = date.getHours();
+        const m = date.getMinutes();
+        const orgX = easing.meta.data[0].x;
+        const nextX = easing.meta.data[1].x;
+        const minX = (nextX - orgX) / 60 * m;
+
+        var ctx = chart.ctx;
+        ctx.save();
+        easing.meta.data.forEach( function (element, index) {
+            if (index != h) return;
+            ctx.strokeStyle = "#c71585";
+            ctx.lineWidth = element.options.borderWidth / 2;
+            ctx.beginPath();
+            const currX = element.x + minX;
+
+            ctx.moveTo(currX, chart.chartArea.top);
+            ctx.lineTo(currX, chart.chartArea.bottom);
+            ctx.stroke();
+        });
+        ctx.restore();
+    }
+};
+
+function getPointSize() {
+    if( window.matchMedia("(min-width: 1200px)").matches) {
+        return 6;
+    } else if( window.matchMedia("(min-width: 960px)").matches) {
+        return 5;
+    } else if( window.matchMedia("(min-width: 720px)").matches) {
+        return 4;
+    } else if( window.matchMedia("(min-width: 480px)").matches) {
+        return 3;
+    } else {
+        return 2;
+    }
+}
+
+function getFontSize() {
+    if( window.matchMedia("(min-width: 1200px)").matches) {
+        return 22.5;
+    } else if( window.matchMedia("(min-width: 960px)").matches) {
+        return 18.75;
+    } else if( window.matchMedia("(min-width: 720px)").matches) {
+        return 15;
+    } else if( window.matchMedia("(min-width: 480px)").matches) {
+        return 11.25;
+    } else {
+        return 7.5;
+    }
+}
+
+function initToast() {
+    toastr.options = {
+        positionClass: "toast-top-center",
+        showDuration: "50",
+        hideDuration: "100",
+        timeOut: "1500",
+    };
+}
+
+function initAreaList() {
+    const prefList = {
+        "沖縄" : [
+            { text: "我喜屋", value: "4701" },
+            { text: "渡久地", value: "4704" },
+            { text: "東", value: "4733" },
+            { text: "石川", value: "4707" },
+            { text: "那覇", value: "4705" },
+            { text: "仲里", value: "4726" },
+            { text: "平良", value: "4713" },
+            { text: "長山", value: "4714" },
+            { text: "石垣", value: "4715" },
+            { text: "船越", value: "4737" },
+            { text: "白浜", value: "4720" },
+            { text: "比川", value: "4717" }
+        ]
+    };
+
+    var area = $("#area");
+    var opts = new Array();
+    Object.keys(prefList).forEach(function(prefKey, prefIndex) {
+        var $optgroup = $("<optgroup>").prop("label", prefKey);
+        Object.keys(this[prefKey]).forEach(function(areaKey, araIndex) {
+            $optgroup.append($("<option>")
+            .text(this[areaKey].text)
+            .val(this[areaKey].value)
+            .prop("selected", this[areaKey].value == "4704"));
+        }, this[prefKey]);
+        opts.push($optgroup);
+    }, prefList);
+    area.append(opts);
+
+    area.change(function() {
+        getData();
+    });
+
+    $(document).ready(function() {
+        area.select2({
+            width: "resolve"
+        });
+    });
+
+    $(document).on( "click", ".ui-widget-overlay", function(){
+        $(this).prev().find(".ui-dialog-content").dialog("close");
+    });
+}
+
+function initClearStorageButton() {
+    $("#clearStorage").click(function() {
+        localStorage.clear();
+        toastr.info("Cleared!");
+    });
+}    
+
+function initDatePicker() {
+    $("#date").datepicker({
+        dateFormat: "yy/mm/dd (D)",
+        showButtonPanel: true,
+        changeMonth: true,
+        changeYear: false,
+        minDate: new Date(2021, 1-1, 1),
+        maxDate: new Date(2021, 12-1, 31),        
+    }).on("change", function() {
+        getData(this.value);
+        updateDateButtons();
+    }).val(getTodayStr());    
+}
+
+function initDateButton(id, dateDiff) {
+    $("#" + id).click(function() {
+        const date = new Date($("#date").val());
+        date.setDate(date.getDate() + dateDiff);
+        const formatedDate = formatDate(date)
+        $("#date").val(formatedDate);
+        getData($("#" + id).value);
+        updateDateButtons();
+    });
+}
+
+function updateDateButtons() {
+    const formatedDate = formatDate(new Date($("#date").val()))
+    const formatedMinDate = formatDate($("#date").datepicker("option", "minDate"));
+    const formatedMaxDate = formatDate($("#date").datepicker("option", "maxDate"));
+    const disablePrev = formatedMinDate == formatedDate;
+    const disableNext = formatedMaxDate == formatedDate;
+    $("#prevDate").prop("disabled", disablePrev);
+    $("#nextDate").prop("disabled", disableNext);
+
+    $("#prevDate").css({ "color" : disablePrev ? "#d3d3d3" : "#444"});
+    $("#nextDate").css({ "color" : disableNext ? "#d3d3d3" : "#444"});
+}
+
+$(function() {
+    initToast();
+    initAreaList();
+    initDatePicker();
+    initDateButton("prevDate", - 1);
+    initDateButton("nextDate", + 1);
+    initClearStorageButton();
+
+    getData();
+});
+
+$(document).ajaxSend(function(){
+    $.LoadingOverlay("show", {
+        image: "",
+        maxSize: 50,
+        fontawesome: "fa fa-spinner fa-pulse",
+        fontawesomeAnimation: "rotate_right",
+        fontawesomeColor: "#15A0C8",
+    });
+});
+
+$(document).ajaxComplete(function(){
+    $.LoadingOverlay("hide");
+});
+
+</script>
+
+<style>
+
+.inputWithIcon input[type="text"] {
+    border: 1px solid #aaa;
+    height: 28px;
+    border-radius: 4px;
+    margin: 12px 0;
+    font-size: 17px;
+    color: #444;
+    outline: none;
+    padding: 8px;
+    box-sizing: border-box;
+    padding-left: 30px;
+    width: 160px;
+}
+
+.inputWithIcon {
+    position: relative;
+    display: inline-block;
+}
+
+.inputWithIcon i {
+    position: absolute;
+    left: 2px;
+    top: 8px;
+    padding: 9px 8px;
+    color: #aaa;
+}
+
+.buttonWithIcon {
+    height: 28px;
+    width: 34px;
+    position: relative;
+    display: inline-block;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    color: #444;
+}
+
+</style>
+</head>
+
+<body>
+    <div style="text-align: center;">
+
+        <select id="area" style="min-width: 100px"></select>
+    
+        <button id="prevDate" class="buttonWithIcon">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <div class="inputWithIcon">
+            <input type="text" id="date" autocomplete="off">
+            <i class="far fa-calendar-alt" aria-hidden="true"></i>
+        </div>
+        <button id="nextDate" class="buttonWithIcon">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+
+    </div>
+
+    <canvas id="chart"></canvas>
+
+    <!--div style="text-align: center;">
+        <input type="button" id="clearStorage" value="キャッシュ削除">
+    </div-->
+</body>
+
+</html>
