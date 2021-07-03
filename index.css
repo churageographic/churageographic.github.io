@@ -1,0 +1,37 @@
+
+.inputWithIcon input[type="text"] {
+    border: 1px solid #aaa;
+    height: 28px;
+    border-radius: 4px;
+    margin: 12px 0;
+    font-size: 17px;
+    color: #444;
+    outline: none;
+    padding: 8px;
+    box-sizing: border-box;
+    padding-left: 30px;
+    width: 160px;
+}
+
+.inputWithIcon {
+    position: relative;
+    display: inline-block;
+}
+
+.inputWithIcon i {
+    position: absolute;
+    left: 2px;
+    top: 8px;
+    padding: 9px 8px;
+    color: #aaa;
+}
+
+.buttonWithIcon {
+    height: 28px;
+    width: 34px;
+    position: relative;
+    display: inline-block;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    color: #444;
+}
