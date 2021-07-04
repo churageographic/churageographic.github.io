@@ -22,6 +22,9 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1/i18n/jquery.ui.datepicker-ja.min.js"></script>
 
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.25/datatables.min.css"/>
+<script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.25/datatables.min.js"></script>
+
 <link href="swipe.css" rel="stylesheet">
 <script src="swipe.min.js"></script>
 
@@ -41,25 +44,35 @@ function formatDate(dt) {
     return `${y}/${m}/${d} (${dow})`;
 }
 
-function getDataLabelFromChart(swipeIndex) {
+function getDateFromChart(swipeIndex) {
     return lineChart[swipeIndex] ? lineChart[swipeIndex].config.data.datasets[0].label : null;
 }
 
+function getStrageKey(dateStr) {
+    return dateStr.substr(0, 4) + $("#area option:selected").val();
+}
+
+function getCurrDateString() {
+    return $("#date").val().replace(/\//g, "-").split(" ")[0];
+}
+
+// FIXME: getとdrawが混在
 function getData() {
     // TODO: 表示の日付と、JSONの日付、Chatの日付、パラメーターで持ち回る日付のフォーマット整理
-    const dateStr = $("#date").val().replace(/\//g, "-").split(" ")[0];
+    const dateStr = getCurrDateString();
 
     if (lineChart[swipe.getPos()] &&
-        dateStr == getDataLabelFromChart(swipe.getPos())) return;
+        dateStr == getDateFromChart(swipe.getPos())) return;
 
-    const year = dateStr.substr(0, 4);
-    const area = $("#area option:selected").val();
+    const strageKey = getStrageKey(dateStr);
 
-    const strageKey = area + year;
     if (localStorage.getItem(strageKey) != null) {
         const response = JSON.parse(localStorage.getItem(strageKey));
         drawChart(getDataToday(response, dateStr), dateStr);
+        initDataTable();
     } else {
+        const year = dateStr.substr(0, 4);
+        const area = $("#area option:selected").val();
         const areaPref = area.substr(0, 2);
         const areaPoi = area.substr(2);
         const json_url = `https://churageographic.github.io/data/${areaPref}/${areaPoi}/${year}.json`;
@@ -73,10 +86,12 @@ function getData() {
             }
             localStorage.setItem(strageKey, JSON.stringify(response));
             drawChart(getDataToday(response, dateStr), dateStr);
+            initDataTable();
         }, "json")
         .fail(function(jqXHR) {
             toastr.error(`「 ${$("#area option:selected").text()}の情報を取得できませんでした`);
             drawChartEmpty(dateStr);
+            initDataTable();
         });
     }
 }
@@ -95,8 +110,8 @@ const EMPTY_CHART_DATA = {
 };
 
 function drawChartEmptyWithSwipeIndex(dateStr, swipeIndex) {
-    var currDate = new Date(getDataLabelFromChart(swipe.getPos()));
-    var otherDate = new Date(getDataLabelFromChart(swipeIndex));
+    var currDate = new Date(getDateFromChart(swipe.getPos()));
+    var otherDate = new Date(getDateFromChart(swipeIndex));
     // 他の描画済日付が1日以上空いている場合に再描画
     if (getDayDiffABS(currDate, otherDate) <= 1) return;
     drawChartWithSwipeIndex(EMPTY_CHART_DATA, dateStr, swipeIndex);
@@ -122,9 +137,29 @@ function getDataToday(data, dateStr) {
     };
 }
 
+function getDataTodayJson(data, dateStr) {
+    var tmpList = [];
+    for (var i = 0; i < data.length; i++) {
+        if (dateStr != data[i].d) continue;
+        tmpList.push(data[i]);
+        // 24時(翌日の0時も表示する為 VerticalLinePlugin()と関連)
+        if (data[i].t == 23) {
+            // 12/31の翌日=翌年度分は未定義
+            tmpList.push(data.length != i + 1 ? data[i + 1] : null);
+        }
+    }
+    return tmpList;
+}
+
 var lineChart = [];
 
-function resetPrevAndNextChart() {  
+function resetChart() {
+    for (var i = 0; lineChart.length > i ; i++) {
+        drawChartWithSwipeIndex(EMPTY_CHART_DATA, null, i);
+    }
+}
+
+function resetPrevAndNextChart() {
     const swipeIndex = swipe.getPos();
     for (var i = 0; lineChart.length > i ; i++) {
         if (swipeIndex != i) {
@@ -467,6 +502,7 @@ function initAreaList() {
     area.append(opts);
 
     area.change(function() {
+        resetChart();
         getData();
     });
 
@@ -497,7 +533,7 @@ function initDatePicker() {
         minDate: new Date(2021, 1-1, 1),
         maxDate: new Date(2021, 12-1, 31),        
     }).on("change", function() {
-        const lastDate = new Date(getDataLabelFromChart(swipe.getPos()));
+        const lastDate = new Date(getDateFromChart(swipe.getPos()));
         const newDate = new Date(this.value + " 09:00"); // APIのデータに合わせる
         if (formatDate(lastDate) == formatDate(newDate)) return;
 
@@ -576,6 +612,52 @@ function initSwipe() {
     });
 }
 
+function initDataTable() {
+    const dateStr = getCurrDateString();
+
+//    if (lineChart[swipe.getPos()] &&
+//        dateStr == getDateFromChart(swipe.getPos())) return;
+
+    const strageKey = getStrageKey(dateStr);
+
+    if (localStorage.getItem(strageKey) == null) return;
+
+    const response = JSON.parse(localStorage.getItem(strageKey));
+    const json = getDataTodayJson(response, dateStr);
+    
+    const dtSetting = {
+        destroy: true,
+        data: json,
+        paging: false,
+        searching: false,
+        info: false,
+        ordering: false,
+        columns: [{
+            data: "d",
+            render : function(data, type, row) {
+                return data.replace(/-/g, "/");
+            }            
+        },
+        { 
+            data: "t",
+            render : function(data, type, row) {
+                return data + ":00";
+            }
+        },
+        {
+            data: "l",
+            render : function(data, type, row) {
+                return data + "cm";
+                /*if (data < 100){
+                    return `<span style='color:blue;'>${data}</span>`;
+                } else {
+                    return data;
+                }*/
+            }
+        }]
+    };
+    $("#lingTable").DataTable(dtSetting);
+}
 
 $(function() {
     initToast();
@@ -585,8 +667,10 @@ $(function() {
     initDateButton("nextDate", + 1);
     initClearStorageButton();
     initSwipe();
-    
+
     getData();
+
+    initDataTable();
 });
 
 $(document).ajaxSend(function(){
@@ -608,7 +692,6 @@ $(document).ajaxComplete(function(){
 
 <body>
     <div style="text-align: center;">
-
         <select id="area" style="min-width: 100px"></select>
     
         <button id="prevDate" class="buttonWithIcon">
@@ -622,26 +705,32 @@ $(document).ajaxComplete(function(){
             <i class="fas fa-chevron-right"></i>
         </button>
 
-    </div>
-
-
-    <div id="swipe" class="swipe">
-        <div class="swipe-wrap">
-          <div>
-            <canvas id="chart" class="item"></canvas>
-          </div>
-          <div>
-            <canvas id="chart" class="item"></canvas>
-          </div>
-          <div>
-            <canvas id="chart" class="item"></canvas>
-          </div>
+        <div id="swipe" class="swipe">
+            <div class="swipe-wrap">
+                <div>
+                    <canvas id="chart" class="item"></canvas>
+                </div>
+                <div>
+                    <canvas id="chart" class="item"></canvas>
+                </div>
+                <div>
+                    <canvas id="chart" class="item"></canvas>
+                </div>
+            </div>
         </div>
+
+        <table class="table table-stripe" id="lingTable">
+            <thead>
+                <tr>
+                    <th>Date</th><th>Time</th><th>Level</th>
+                </tr>
+            </thead>
+        </table>
+
+        <!--div style="text-align: center;">
+            <input type="button" id="clearStorage" value="キャッシュ削除">
+        </div-->
     </div>
 
-    <!--div style="text-align: center;">
-        <input type="button" id="clearStorage" value="キャッシュ削除">
-    </div-->
 </body>
-
 </html>
