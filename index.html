@@ -139,7 +139,7 @@ function drawChart(data, dateStr) {
 
 function drawChartWithSwipeIndex(data, dateStr, swipeIndex) {
     if (lineChart[swipeIndex]) lineChart[swipeIndex].destroy();
-    const ctx = $("[id=chart]")[swipeIndex];
+    const ctx = $("[id=chart]")[swipeIndex].getContext("2d");
     const pointSize = getPointSize();
     const tooltipFontSize = getFontSizeScale();
     lineChart[swipeIndex] = new Chart(ctx, {
@@ -147,15 +147,13 @@ function drawChartWithSwipeIndex(data, dateStr, swipeIndex) {
         data: {
             labels: data.time,
             datasets: [{
-                // TODO: 表示の日付は"/"で区切る
-                label: dateStr,
+                label: dateStr ? dateStr.replace(/-/g, "\/") : null,
                 data: data.level,
-                borderColor: "#15A0C8",
-                backgroundColor: "rgba(0,0,255,0.05)",
+                backgroundColor: COLOR.OCEAN,
                 fill: true,
                 borderColor: function(context) {
                     const chart = context.chart;
-                    const {ctx, chartArea} = chart;
+                    const { ctx, chartArea } = chart;
                     if (!chartArea) return null;
                     return getGradient(ctx, chartArea);
                 },
@@ -209,7 +207,7 @@ function drawChartWithSwipeIndex(data, dateStr, swipeIndex) {
                         maxRotation: 0,
                         minRotation: 0,
                         maxTicksLimit: getMaxTickLimit(),
-                        color: COLOR.MIDNIGHTBLUE,
+                        color: COLOR.GRAY,
                         font: { size: getFontSizeScale() },
                         callback: function(val, index) {
                             return index % getTickDivision() == 0 ? val : "";
@@ -220,30 +218,35 @@ function drawChartWithSwipeIndex(data, dateStr, swipeIndex) {
                     ticks: {
                         stepSize: 30,
                         font: { size: getFontSizeScale() },
-                        /*callback: function(val, index) {
-                            if (index == 1 || val == 240) return val;
-                            return index % 2 == 0 ? val : "";
-                        }*/
+                        color: COLOR.GRAY,
                     },
                     min: -30,
                     max: 240,
                     grid: {
                         color: function(context) {
-                            return context.tick.value == 0 ? "#9e9e9e" : "#E5E5E5";
+                            return context.tick.value == 0 ? COLOR.GRAY : COLOR.LIGHTGRAY;
                         }
                     }
                 }
             }
         },
-        plugins:[ DataLabelPluginPoint, VerticalLinePlugin ],
+        plugins:[ DataLabelPluginPoint, VerticalLinePlugin, {
+        beforeDraw: drawBackground(ctx)} ],
         }
     );   
 }
 
 const COLOR = {
+    GRAY: "#9e9e9e",
+    LIGHTGRAY: "#e5e5e5",
     BLUE: "#1e90ff",
     MIDNIGHTBLUE: "#0000cd",
-    AQUAMARINE: "#7fffd4"
+    AQUAMARINE: "#7fffd4",
+    MAGENTA: "#c71585",
+    YELLOW: "#FFFF00",
+    PURPLE: "#800080",
+    OCEAN: "rgba(0, 0, 255, 0.05)",
+    REEF: "rgba(21, 67, 96, 0.075)",
 };
 
 let width, height, gradient;
@@ -253,9 +256,11 @@ function getGradient(ctx, chartArea) {
         width = chartArea.right - chartArea.left;
         height = chartArea.bottom - chartArea.top;
         gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
-        gradient.addColorStop(1, COLOR.MIDNIGHTBLUE);
+        gradient.addColorStop(1, COLOR.MAGENTA);
+        gradient.addColorStop(0.75, COLOR.MIDNIGHTBLUE);
         gradient.addColorStop(0.5, COLOR.BLUE);
-        gradient.addColorStop(0, COLOR.AQUAMARINE);
+        gradient.addColorStop(0.25, COLOR.AQUAMARINE);
+        gradient.addColorStop(0, COLOR.YELLOW);
     }
     return gradient;
 }
@@ -268,8 +273,10 @@ var DataLabelPluginPoint = {
             var dataset = chart.data.datasets[0];
             var meta = chart.getDatasetMeta(0);
             meta.data.forEach( function (element, index) {
-                ctx.fillStyle = "#666666";
-                var fontSize = getFontSize();
+                if (index % getTickDivision() != 0) return;
+                console.log(index);
+                ctx.fillStyle = COLOR.GRAY;
+                var fontSize = getFontSizeScale();
                 var fontStyle = "normal";
                 var fontFamily = "Helvetica Neue";
                 ctx.font = Chart.helpers.fontString(fontSize, fontStyle, fontFamily);
@@ -300,9 +307,8 @@ var VerticalLinePlugin = {
         var ctx = chart.ctx;
         ctx.save();
         easing.meta.data.forEach( function (element, index) {
-            if (index != h 
-            || dataset.label != getTodayStr().split(" ")[0].replace(/\//g, "-")) return;
-            ctx.strokeStyle = "#c71585";
+            if (index != h || dataset.label != getTodayStr().split(" ")[0]) return;
+            ctx.strokeStyle = COLOR.MAGENTA;
             ctx.lineWidth = element.options.borderWidth / 2;
             ctx.beginPath();
             const currX = element.x + minX;
@@ -314,6 +320,20 @@ var VerticalLinePlugin = {
         ctx.restore();
     }
 };
+
+function drawBackground(ctx) {
+    return function(chart, options) {
+        var xscale = chart.scales["x"];
+        var yscale = chart.scales["y"];
+        console.log(xscale);
+        var left = xscale.left;
+        var top = yscale.getPixelForValue(0);
+        var height = yscale.getPixelForValue(-30) - top;
+
+        ctx.fillStyle = COLOR.REEF;
+        ctx.fillRect(left, top, xscale.width, height);
+    }
+}
 
 const MIN_WIDTH = {
     W1200: "(min-width: 1200px)",
@@ -511,7 +531,7 @@ function updateDateButtons() {
     $("#prevDate").css({ "color" : disablePrev ? "#d3d3d3" : "#444"});
     $("#nextDate").css({ "color" : disableNext ? "#d3d3d3" : "#444"});
 }
-/*
+/* TODO: カレンダーのmin, maxと表示日付を比較してスワイプできないように
 function resetSwipeContinuous() {
     if ($("#prevDate").prop("disabled") || $("#nextDate").prop("disabled")) {
         window.swipe.setup({ continuous : false });
@@ -562,7 +582,7 @@ $(document).ajaxSend(function(){
         maxSize: 50,
         fontawesome: "fa fa-spinner fa-pulse",
         fontawesomeAnimation: "rotate_right",
-        fontawesomeColor: "#15A0C8",
+        fontawesomeColor: COLOR.GRAY,
     });
 });
 
