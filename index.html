@@ -614,12 +614,9 @@ function initSwipe() {
 
 function initDataTable() {
     const dateStr = getCurrDateString();
-
-//    if (lineChart[swipe.getPos()] &&
-//        dateStr == getDateFromChart(swipe.getPos())) return;
+    if (dateStr == getDateFromChart(swipe.getPos())) return;
 
     const strageKey = getStrageKey(dateStr);
-
     if (localStorage.getItem(strageKey) == null) return;
 
     const response = JSON.parse(localStorage.getItem(strageKey));
@@ -692,7 +689,10 @@ $(document).ajaxComplete(function(){
 
 <body>
     <div style="text-align: center;">
-        <select id="area" style="min-width: 100px"></select>
+        <div class="selectWithIcon">
+            <select id="area" class="areaList"></select>
+            <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+        </div>
     
         <button id="prevDate" class="buttonWithIcon">
             <i class="fas fa-chevron-left"></i>

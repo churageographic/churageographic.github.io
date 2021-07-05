@@ -1,70 +1,84 @@
+.areaList {
+    width: 100px;
+}
+.selectWithIcon {
+    display: inline-block;
+    position: relative;
+}
+.selectWithIcon i {
+    color: #1B2631;
+    left: 5px;
+    padding: 6px 5px;
+    position: absolute;
+}
+
+.select2-selection__rendered {
+    color: #1B2631;
+    font-family: sans-serif;
+    margin-left: 15px;
+}
+.select2-results__options {
+    color: #1B2631;
+    font-family: sans-serif;
+}
 
 .inputWithIcon input[type="text"] {
     border: 1px solid #aaa;
-    height: 28px;
     border-radius: 4px;
-    margin: 12px 0;
-    font-size: 17px;
-    color: #444;
+    color: #1B2631;
+    font-family: sans-serif;
+    font-size: 15px;
+    height: 22px;
+    margin: 12px 0px;
+    padding-bottom: 3px;
     outline: none;
-    padding: 8px;
-    box-sizing: border-box;
     padding-left: 30px;
-    width: 160px;
+    width: 130px;
 }
-
 .inputWithIcon {
-    position: relative;
     display: inline-block;
+    position: relative;
 }
-
 .inputWithIcon i {
-    position: absolute;
+    color: #1B2631;
     left: 2px;
-    top: 8px;
-    padding: 9px 8px;
-    color: #aaa;
+    padding: 18px 8px;
+    position: absolute;
 }
 
 .buttonWithIcon {
-    height: 28px;
-    width: 34px;
-    position: relative;
-    display: inline-block;
     border: 1px solid #aaa;
     border-radius: 4px;
     color: #444;
+    display: inline-block;
+    font-family: sans-serif;
+    height: 28px;
+    position: relative;
+    width: 34px;
 }
 
 .dataTables_wrapper {
-    margin-top: 5%;
-    position: relative;
     clear: both;
     color: #1B2631;
+    font-family: sans-serif;
+    font-size: calc(85% + 0.5vw);
+    margin-top: 5%;
+    position: relative;
     *zoom: 1;
     zoom: 1;
 }
-@media screen and (min-width: 300px) {
-    .dataTables_wrapper {
-        font-size: 2.5vh;
-    }
-}
 @media screen and (min-width: 760px) {
     .dataTables_wrapper {
-        font-size: 1.8vw;
-        width: 70vw;
         display: inline-block;
+        width: 70vw;
     }
 }
-
 @media screen and (min-width: 1200px) {
     .dataTables_wrapper {
-        font-size: 1.2vw;
-        width: 50vw;
         display: inline-block;
+        width: 50vw;
     }
 }
-
 .dataTables_wrapper table td {
 	background: #eeeeee;
 }
