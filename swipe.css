@@ -1,4 +1,5 @@
 .swipe {
+    background-color: lightslategrey;
     overflow: hidden;
     visibility: hidden;
     position: relative;

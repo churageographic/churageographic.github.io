@@ -242,27 +242,33 @@ function drawChartWithSwipeIndex(data, dateStr, swipeIndex) {
                         maxRotation: 0,
                         minRotation: 0,
                         maxTicksLimit: getMaxTickLimit(),
-                        color: COLOR.DARKGRAY,
+                        color: COLOR.WHITE,
                         font: { size: getFontSizeScale() },
                         callback: function(val, index) {
                             return index % getTickDivision() == 0 ? val : "";
                         }
+                    },
+                    grid: {
+                        color: function(context) {
+                            return COLOR.LIGHTGRAY;
+                        }
                     }
+
                 },
                 y: {
                     ticks: {
                         stepSize: 30,
                         font: { size: getFontSizeScale() },
-                        color: COLOR.GRAY,
+                        color: COLOR.LIGHTGRAY,
                     },
                     min: -30,
                     max: 240,
                     grid: {
                         color: function(context) {
-                            return context.tick.value == 0 ? COLOR.GRAY : COLOR.LIGHTGRAY;
+                            return context.tick.value == 0 ? COLOR.WHITE : COLOR.LIGHTGRAY;
                         }
                     }
-                }
+                },
             }
         },
         plugins:[ DataLabelPluginPoint, VerticalLinePlugin, {
@@ -272,17 +278,18 @@ function drawChartWithSwipeIndex(data, dateStr, swipeIndex) {
 }
 
 const COLOR = {
+    WHITE: "#ffffff",
     GRAY: "#9e9e9e",
     DARKGRAY: "#1B2631",
-    LIGHTGRAY: "#e5e5e5",
+    LIGHTGRAY: "#AEB6BF",
     BLUE: "#1e90ff",
     MIDNIGHTBLUE: "#0000cd",
     AQUAMARINE: "#7fffd4",
     MAGENTA: "#c71585",
     YELLOW: "#FFFF00",
     PURPLE: "#800080",
-    OCEAN: "rgba(0, 0, 255, 0.05)",
-    REEF: "rgba(21, 67, 96, 0.1)",
+    OCEAN: "rgba(0, 0, 255, 0.1)",
+    REEF: "rgba(21, 67, 96, 0.3)",
 };
 
 let width, height, gradient;
@@ -310,7 +317,7 @@ var DataLabelPluginPoint = {
             var meta = chart.getDatasetMeta(0);
             meta.data.forEach( function (element, index) {
                 if (index % getTickDivision() != 0) return;
-                ctx.fillStyle = COLOR.DARKGRAY;
+                ctx.fillStyle = COLOR.WHITE;
                 var fontSize = getFontSizeScale();
                 var fontStyle = "normal";
                 var fontFamily = "Helvetica Neue";
