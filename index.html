@@ -31,6 +31,20 @@
 <link href="index.css" rel="stylesheet">
 
 <script>
+const COLOR = {
+    WHITE: "#ffffff",
+    GRAY: "#9e9e9e",
+    DARKGRAY: "#1B2631",
+    LIGHTGRAY: "#AEB6BF",
+    BLUE: "#1e90ff",
+    MIDNIGHTBLUE: "#0000cd",
+    AQUAMARINE: "#7fffd4",
+    MAGENTA: "#c71585",
+    YELLOW: "#FFFF00",
+    PURPLE: "#800080",
+    OCEAN: "rgba(0, 0, 255, 0.2)",
+    REEF: "rgba(21, 67, 96, 0.3)",
+};
 
 function getTodayStr() {
     return formatDate(new Date());
@@ -250,6 +264,7 @@ function drawChartWithSwipeIndex(data, dateStr, swipeIndex) {
                     },
                     grid: {
                         color: function(context) {
+                            console.log(context);
                             return COLOR.LIGHTGRAY;
                         }
                     }
@@ -276,21 +291,6 @@ function drawChartWithSwipeIndex(data, dateStr, swipeIndex) {
         }
     );   
 }
-
-const COLOR = {
-    WHITE: "#ffffff",
-    GRAY: "#9e9e9e",
-    DARKGRAY: "#1B2631",
-    LIGHTGRAY: "#AEB6BF",
-    BLUE: "#1e90ff",
-    MIDNIGHTBLUE: "#0000cd",
-    AQUAMARINE: "#7fffd4",
-    MAGENTA: "#c71585",
-    YELLOW: "#FFFF00",
-    PURPLE: "#800080",
-    OCEAN: "rgba(0, 0, 255, 0.1)",
-    REEF: "rgba(21, 67, 96, 0.3)",
-};
 
 let width, height, gradient;
 
@@ -502,7 +502,7 @@ function initAreaList() {
             $optgroup.append($("<option>")
             .text(this[areaKey].text)
             .val(this[areaKey].value)
-            .prop("selected", this[areaKey].value == "4704"));
+            .prop("selected", this[areaKey].value == getDefaultArea()));
         }, this[prefKey]);
         opts.push($optgroup);
     }, prefList);
@@ -531,6 +531,20 @@ function initClearStorageButton() {
     });
 }
 
+function getDefaultArea() {
+    const paramArea = qs("area");
+    return String(paramArea).match(/^\d{4}$/g) ? paramArea : "4705";
+}
+
+function getDefaultDate() {
+    const paramDate = qs("date");
+    if (String(paramDate).match(/^\d{8}$/g)) {
+        return `${paramDate.substr(0,4)}-${paramDate.substr(4,2)}-${paramDate.substr(6,2)}`
+    } else {
+        return getTodayStr();
+    }
+}
+
 function initDatePicker() {
     $("#date").datepicker({
         dateFormat: "yy/mm/dd (D)",
@@ -554,7 +568,7 @@ function initDatePicker() {
         }
 
         lastDate < newDate ? swipe.next() : swipe.prev();
-    }).val(getTodayStr());    
+    }).val(getDefaultDate());    
 }
 
 var dateChangingByDateButton = false;
@@ -628,6 +642,18 @@ function initDataTable() {
 
     const response = JSON.parse(localStorage.getItem(strageKey));
     const json = getDataTodayJson(response, dateStr);
+
+    const h = new Date().getHours();
+    var format = function(data, suffix, row) {
+        const formatedData = data + suffix;
+        if (row.t == h) {
+            return `<span style='color:${COLOR.MAGENTA};font-weight:bold;'>${formatedData}</span>`;
+        } else if (Math.abs(row.t - h) == 1) {
+            return `<span style='color:${COLOR.MIDNIGHTBLUE};'>${formatedData}</span>`;
+        } else {
+            return formatedData;
+        }
+    }
     
     const dtSetting = {
         destroy: true,
@@ -639,28 +665,29 @@ function initDataTable() {
         columns: [{
             data: "d",
             render : function(data, type, row) {
-                return data.replace(/-/g, "/");
+                return format(data.replace(/-/g, "/"), "", row);
             }            
         },
         { 
             data: "t",
             render : function(data, type, row) {
-                return data + ":00";
+                return format(data, ":00", row);
             }
         },
         {
             data: "l",
             render : function(data, type, row) {
-                return data + "cm";
-                /*if (data < 100){
-                    return `<span style='color:blue;'>${data}</span>`;
-                } else {
-                    return data;
-                }*/
+                return format(data, "cm", row);
             }
         }]
     };
     $("#lingTable").DataTable(dtSetting);
+}
+
+function qs(key) {
+    key = key.replace(/[*+?^$.\[\]{}()|\\\/]/g, "\\$&"); // escape RegEx meta chars
+    var match = location.search.match(new RegExp("[?&]"+key+"=([^&]+)(&|$)"));
+    return match && decodeURIComponent(match[1].replace(/\+/g, " "));
 }
 
 $(function() {
@@ -737,6 +764,19 @@ $(document).ajaxComplete(function(){
         <!--div style="text-align: center;">
             <input type="button" id="clearStorage" value="キャッシュ削除">
         </div-->
+
+        <div class="disclaimer">
+            <li>航海での利用はできません。レジャーの参考程度にしてください。掲載情報は時間毎の目安であり、最大最小を表すものではありません。</li>
+            <li>この情報を利用した際に生じたいかなるトラブルや損失、損害についての責任を負いかねます。</li>
+            <li>予告なしに運営の中断、中止、内容の変更を行うことがありますが、これらにより生じたいかなるトラブルや損失、損害についての責任を負いかねます。</li>
+        </div>
+
+        <hr>
+
+
+        <div class="copyright">
+            Copyright 2021, Chura Geographic Okinawa Japan
+        </div>
     </div>
 
 </body>
