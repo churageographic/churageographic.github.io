@@ -612,9 +612,10 @@ function initDataTable() {
     const h = new Date().getHours();
     var format = function(data, suffix, row) {
         const formatedData = data + suffix;
-        if (row.t == h) {
+        const todayDateStr = getTodayStr().replace(/\//g, "-").split(" ")[0];
+        if (todayDateStr == row.d && row.t == h) {
             return `<span style='color:${COLOR.MAGENTA};font-weight:bold;'>${formatedData}</span>`;
-        } else if (Math.abs(row.t - h) == 1) {
+        } else if (todayDateStr == row.d && Math.abs(row.t - h) == 1) {
             return `<span style='color:${COLOR.MIDNIGHTBLUE};'>${formatedData}</span>`;
         } else {
             return formatedData;
