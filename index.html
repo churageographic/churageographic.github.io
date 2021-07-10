@@ -264,7 +264,6 @@ function drawChartWithSwipeIndex(data, dateStr, swipeIndex) {
                     },
                     grid: {
                         color: function(context) {
-                            console.log(context);
                             return COLOR.LIGHTGRAY;
                         }
                     }
@@ -700,8 +699,6 @@ $(function() {
     initSwipe();
 
     getData();
-
-    initDataTable();
 });
 
 $(document).ajaxSend(function(){
