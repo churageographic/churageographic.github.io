@@ -72,10 +72,18 @@
         display: inline-block;
         width: 70vw;
     }
+    hr {
+        border-top: 1px solid #121212;
+        width: 70vw;
+    }
 }
 @media screen and (min-width: 1200px) {
     .dataTables_wrapper {
         display: inline-block;
+        width: 50vw;
+    }
+    hr {
+        border-top: 1px solid #121212;
         width: 50vw;
     }
 }
@@ -87,6 +95,7 @@
     padding-top: 3px;
     padding-bottom: 3px;
 }
+
 .dataTables_wrapper table tr:nth-child(even) td {
 	background: rgba(21, 67, 96, 0.1);
     padding-top: 3px;
@@ -100,11 +109,16 @@
 }
 
 .disclaimer {
+    display: inline-block;
     color: #1B2631;
     font-size: calc(35% + 0.5vw);
     padding-top: 3px;
     padding-bottom: 3px;
     text-align: left;
+}
+
+hr {
+    border-top: 1px solid #121212;
 }
 
 .copyright {
