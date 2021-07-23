@@ -71,6 +71,7 @@ header {
 }
 
 .buttonWithIcon {
+    background-color: #ffffff;
     border: 1px solid #aaa;
     border-radius: 4px;
     color: #444;
