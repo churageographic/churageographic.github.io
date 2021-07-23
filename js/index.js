@@ -78,7 +78,7 @@ function getData() {
 }
 
 function drawChartEmpty(dateStr) {
-    drawChartEmptyWithSwipeIndex(data, dateStr, swipe.getPos());
+    drawChartEmptyWithSwipeIndex(dateStr, swipe.getPos());
 }
 
 function getDayDiffABS(data1, data2) {
@@ -599,30 +599,32 @@ function initSwipe() {
     });
 }
 
-function initDataTable() {
-    const dateStr = getCurrDateString();
-    if (dateStr == getDateFromChart(swipe.getPos())) return;
+function getEmptyTableData() {
+    return {
+        destroy: true,
+        data: [{d: "", t: 0, l: "?"}],
+        paging: false,
+        searching: false,
+        info: false,
+        ordering: false,
+        columns: [{
+            data: "d",
+            render : function(data, type, row) { return ""; }            
+        },
+        { 
+            data: "t",
+            render : function(data, type, row) { return ""; }            
+        },
+        {
+            data: "l",
+            render : function(data, type, row) { return ""; }            
+        }]
+    };
+}
 
-    const strageKey = getStrageKey(dateStr);
-    if (sessionStorage.getItem(strageKey) == null) return;
-
-    const response = JSON.parse(sessionStorage.getItem(strageKey));
-    const json = getDataTodayJson(response, dateStr);
-
-    const h = new Date().getHours();
-    var format = function(data, suffix, row) {
-        const formatedData = data + suffix;
-        const todayDateStr = getTodayStr().replace(/\//g, "-").split(" ")[0];
-        if (todayDateStr == row.d && row.t == h) {
-            return `<span style='color:${COLOR.DEEPPINK};font-weight:bold;'>${formatedData}</span>`;
-        } else if (todayDateStr == row.d && Math.abs(row.t - h) == 1) {
-            return `<span style='color:${COLOR.MIDNIGHTBLUE};'>${formatedData}</span>`;
-        } else {
-            return formatedData;
-        }
-    }
-    
-    const dtSetting = {
+function getDataTableData(json) {
+    var format = getDataTableFormatter(new Date().getHours())
+    return {
         destroy: true,
         data: json,
         paging: false,
@@ -647,8 +649,36 @@ function initDataTable() {
                 return format(data, "cm", row);
             }
         }]
-    };
-    $("#dataTable").DataTable(dtSetting);
+    };    
+}
+
+function getDataTableFormatter(h) {
+    return function(data, suffix, row) {
+        const formatedData = data + suffix;
+        const todayDateStr = getTodayStr().replace(/\//g, "-").split(" ")[0];
+        if (todayDateStr == row.d && row.t == h) {
+            return `<span style='color:${COLOR.DEEPPINK};font-weight:bold;'>${formatedData}</span>`;
+        } else if (todayDateStr == row.d && Math.abs(row.t - h) == 1) {
+            return `<span style='color:${COLOR.MIDNIGHTBLUE};'>${formatedData}</span>`;
+        } else {
+            return formatedData;
+        }
+    }    
+}
+
+function initDataTable() {
+    const dateStr = getCurrDateString();
+    if (dateStr == getDateFromChart(swipe.getPos())) return;
+
+    const strageKey = getStrageKey(dateStr);
+    if (sessionStorage.getItem(strageKey) == null) {
+        $("#dataTable").DataTable(getEmptyTableData());
+        return;
+    }
+
+    const response = JSON.parse(sessionStorage.getItem(strageKey));
+    const json = getDataTodayJson(response, dateStr);
+    $("#dataTable").DataTable(getDataTableData(json));
 }
 
 function qs(key) {
