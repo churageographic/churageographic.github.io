@@ -1,3 +1,29 @@
+body {
+    margin: 0px;
+    padding: 0px;
+}
+
+header {
+    background-color: rgba(21, 67, 96, 0.9);
+}
+
+.logo {
+    display: inline-block;
+    width : 50%;
+    height : auto;
+    padding-top: 5px;
+}
+
+.contents {
+    text-align: center;
+}
+
+.controller {
+    background-color: lightslategrey;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
 .areaList {
     width: 100px;
 }
@@ -23,16 +49,14 @@
 }
 
 .inputWithIcon input[type="text"] {
+    vertical-align: middle;
     border: 1px solid #aaa;
     border-radius: 4px;
     color: #1B2631;
     font-family: sans-serif;
     font-size: 15px;
-    height: 22px;
-    margin: 12px 0px;
-    padding-bottom: 3px;
-    outline: none;
     padding-left: 30px;
+    outline: none;
     width: 130px;
 }
 .inputWithIcon {
@@ -41,8 +65,8 @@
 }
 .inputWithIcon i {
     color: #1B2631;
-    left: 2px;
-    padding: 18px 8px;
+    left: 5px;
+    padding: 6px 5px;
     position: absolute;
 }
 
@@ -62,11 +86,11 @@
     color: #1B2631;
     font-family: sans-serif;
     font-size: calc(75% + 0.5vw);
-    margin-top: 5%;
     position: relative;
     *zoom: 1;
     zoom: 1;
 }
+
 @media screen and (min-width: 760px) {
     .dataTables_wrapper {
         display: inline-block;
@@ -94,6 +118,7 @@
     font-weight: normal;
     padding-top: 3px;
     padding-bottom: 3px;
+    border-bottom: 1px solid rgba(21, 67, 96, 0.1);
 }
 
 .dataTables_wrapper table tr:nth-child(even) td {
@@ -108,22 +133,32 @@
     padding-bottom: 3px;
 }
 
+.dataTables_wrapper table.no-footer {
+    border-bottom: 1px solid rgba(21, 67, 96, 0.9);
+}
+
+ul {
+    padding-left: 20px;
+    padding-right: 5px;
+}
+
 .disclaimer {
     display: inline-block;
     color: #1B2631;
     font-size: calc(35% + 0.5vw);
-    padding-top: 3px;
-    padding-bottom: 3px;
     text-align: left;
 }
 
-hr {
-    border-top: 1px solid #121212;
-}
-
 .copyright {
-    color: #1B2631;
+    background-color: rgba(21, 67, 96, 0.9);
+    color: #ffffff;
     font-size: calc(55% + 0.5vw);
     padding-top: 5px;
     padding-bottom: 5px;
+}
+
+.ui-datepicker-today.ui-datepicker-current-day a.ui-state-highlight {
+    border-color: #aaaaaa;
+    background: #5897fb;
+    color: #ffffff;
 }

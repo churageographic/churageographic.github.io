@@ -6,7 +6,7 @@ const COLOR = {
     BLUE: "#1e90ff",
     MIDNIGHTBLUE: "#0000cd",
     AQUAMARINE: "#7fffd4",
-    MAGENTA: "#c71585",
+    DEEPPINK: "#ff1493",
     YELLOW: "#FFFF00",
     PURPLE: "#800080",
     OCEAN: "rgba(0, 0, 255, 0.2)",
@@ -265,7 +265,7 @@ function getGradient(ctx, chartArea) {
         width = chartArea.right - chartArea.left;
         height = chartArea.bottom - chartArea.top;
         gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
-        gradient.addColorStop(1, COLOR.MAGENTA);
+        gradient.addColorStop(1, COLOR.DEEPPINK);
         gradient.addColorStop(0.75, COLOR.MIDNIGHTBLUE);
         gradient.addColorStop(0.5, COLOR.BLUE);
         gradient.addColorStop(0.25, COLOR.AQUAMARINE);
@@ -316,8 +316,8 @@ var VerticalLinePlugin = {
         ctx.save();
         easing.meta.data.forEach( function (element, index) {
             if (index != h || dataset.label != getTodayStr().split(" ")[0]) return;
-            ctx.strokeStyle = COLOR.MAGENTA;
-            ctx.lineWidth = element.options.borderWidth / 2;
+            ctx.strokeStyle = COLOR.DEEPPINK;
+            ctx.lineWidth = element.options.borderWidth / 1.5;
             ctx.beginPath();
             const currX = element.x + minX;
 
@@ -614,7 +614,7 @@ function initDataTable() {
         const formatedData = data + suffix;
         const todayDateStr = getTodayStr().replace(/\//g, "-").split(" ")[0];
         if (todayDateStr == row.d && row.t == h) {
-            return `<span style='color:${COLOR.MAGENTA};font-weight:bold;'>${formatedData}</span>`;
+            return `<span style='color:${COLOR.DEEPPINK};font-weight:bold;'>${formatedData}</span>`;
         } else if (todayDateStr == row.d && Math.abs(row.t - h) == 1) {
             return `<span style='color:${COLOR.MIDNIGHTBLUE};'>${formatedData}</span>`;
         } else {
@@ -648,7 +648,7 @@ function initDataTable() {
             }
         }]
     };
-    $("#lingTable").DataTable(dtSetting);
+    $("#dataTable").DataTable(dtSetting);
 }
 
 function qs(key) {

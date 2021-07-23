@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Tides</title>
+    <title>Chura Geopraphic Tides</title>
     <link rel="shortcut icon" href="#" />
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>  
@@ -29,27 +29,33 @@
     <link href="css/swipe.css" rel="stylesheet">
     <script src="js/swipe.min.js"></script>
 
-    <link href="css/index.min.css" rel="stylesheet">
+    <link href="css/index.css" rel="stylesheet">
     <script src="js/index.min.js"></script>
 </head>
 
 <body>
-    <div style="text-align: center;">
-        <div class="selectWithIcon">
-            <select id="area" class="areaList"></select>
-            <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+    <div class="contents">
+        <header>
+            <img src="img/logo.png" class="logo">
+        </header>
+
+        <div class="controller">
+            <div class="selectWithIcon">
+                <select id="area" class="areaList"></select>
+                <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+            </div>
+        
+            <button id="prevDate" class="buttonWithIcon">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="inputWithIcon">
+                <input type="text" id="date" autocomplete="off" readonly="readonly">
+                <i class="far fa-calendar-alt" aria-hidden="true"></i>
+            </div>
+            <button id="nextDate" class="buttonWithIcon">
+                <i class="fas fa-chevron-right"></i>
+            </button>
         </div>
-    
-        <button id="prevDate" class="buttonWithIcon">
-            <i class="fas fa-chevron-left"></i>
-        </button>
-        <div class="inputWithIcon">
-            <input type="text" id="date" autocomplete="off" readonly="readonly">
-            <i class="far fa-calendar-alt" aria-hidden="true"></i>
-        </div>
-        <button id="nextDate" class="buttonWithIcon">
-            <i class="fas fa-chevron-right"></i>
-        </button>
 
         <div id="swipe" class="swipe">
             <div class="swipe-wrap">
@@ -65,7 +71,7 @@
             </div>
         </div>
 
-        <table class="table table-stripe" id="lingTable">
+        <table class="table table-stripe" id="dataTable">
             <thead>
                 <tr>
                     <th>Date</th><th>Time</th><th>Level</th>
@@ -78,13 +84,13 @@
         </div-->
 
         <div class="disclaimer">
-            <li><a href="https://www1.kaiho.mlit.go.jp/KANKYO/TIDE/tide_pred/index.htm">「潮汐推算」（海上保安庁）</a> の推算港湾毎の毎時潮高を加工して作成しています。</li>
-            <li>航海での利用はできません。レジャーの参考程度にしてください。掲載情報は時間毎の目安であり、最大最小の潮位を表すものではありません。</li>
-            <li>この情報を利用した際に生じたいかなるトラブルや損失、損害についての責任を負いかねます。</li>
-            <li>予告なしに運営の中断、中止、内容の変更を行うことがありますが、これらにより生じたいかなるトラブルや損失、損害についての責任を負いかねます。</li>
+            <ul>
+                <li><a href="https://www1.kaiho.mlit.go.jp/KANKYO/TIDE/tide_pred/index.htm">「潮汐推算」（海上保安庁）</a> の推算港湾毎の毎時潮高を加工して作成しています。</li>
+                <li>航海での利用はできません。レジャーの参考程度にしてください。掲載情報は時間毎の目安であり、最大最小の潮位を表すものではありません。</li>
+                <li>この情報を利用した際に生じたいかなるトラブルや損失、損害についての責任を負いかねます。</li>
+                <li>予告なしに運営の中断、中止、内容の変更を行うことがありますが、これらにより生じたいかなるトラブルや損失、損害についての責任を負いかねます。</li>
+            </ul>
         </div>
-
-        <hr>
 
         <div class="copyright">
             Copyright 2021, Chura Geographic Okinawa Japan
