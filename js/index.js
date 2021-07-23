@@ -125,8 +125,8 @@ function getDataTodayJson(data, dateStr) {
         tmpList.push(data[i]);
         // 24時(翌日の0時も表示する為 VerticalLinePlugin()と関連)
         if (data[i].t == 23) {
-            // 12/31の翌日=翌年度分は未定義
-            tmpList.push(data.length != i + 1 ? data[i + 1] : null);
+            // 12/31の翌日=翌年度分は未定義(nullだとdatatableがエラーになるので空の値入れる)
+            tmpList.push(data.length != i + 1 ? data[i + 1] : {d: "", t: 0, l: "?"});
         }
     }
     return tmpList;
