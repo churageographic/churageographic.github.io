@@ -518,9 +518,9 @@ function initDatePicker() {
         dateFormat: "yy/mm/dd (D)",
         showButtonPanel: true,
         changeMonth: true,
-        changeYear: false,
+        changeYear: true,
         minDate: new Date(2021, 1-1, 1),
-        maxDate: new Date(2021, 12-1, 31),        
+        maxDate: new Date(2022, 12-1, 31),        
     }).on("change", function() {
         const lastDate = new Date(getDateFromChart(swipe.getPos()));
         const newDate = new Date(this.value + " 09:00"); // APIのデータに合わせる
