@@ -519,7 +519,7 @@ function initDatePicker() {
         showButtonPanel: true,
         changeMonth: true,
         changeYear: true,
-        minDate: new Date(2021, 1-1, 1),
+        minDate: new Date(2020, 1-1, 1),
         maxDate: new Date(2022, 12-1, 31),        
     }).on("change", function() {
         const lastDate = new Date(getDateFromChart(swipe.getPos()));
