@@ -520,7 +520,7 @@ function initDatePicker() {
         changeMonth: true,
         changeYear: true,
         minDate: new Date(2020, 1-1, 1),
-        maxDate: new Date(2022, 12-1, 31),        
+        maxDate: new Date(2023, 12-1, 31),        
     }).on("change", function() {
         const lastDate = new Date(getDateFromChart(swipe.getPos()));
         const newDate = new Date(this.value + " 09:00"); // APIのデータに合わせる
