@@ -633,7 +633,7 @@ function getDataTableData(json) {
         searching: false,
         info: false,
         ordering: false,
-        scrollY: '30vh',
+        scrollY: '34.3vh',
         scrollCollapse: true,
         scroller: true,
         columns: [{
@@ -657,8 +657,8 @@ function getDataTableData(json) {
         initComplete : function() {
             var $row = $("#dataTable").DataTable().row(new Date().getHours()).node();
             var elmRect = $row.getBoundingClientRect();
-            var theadRect = $("thead")[1].getBoundingClientRect();
-            $(".dataTables_scrollBody").scrollTop(elmRect.top + theadRect.top);
+            var scrollTo = elmRect.height * new Date().getHours()
+            $(".dataTables_scrollBody").scrollTop(scrollTo);
         }
     };
 }
