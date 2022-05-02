@@ -633,11 +633,14 @@ function getDataTableData(json) {
         searching: false,
         info: false,
         ordering: false,
+        scrollY: '30vh',
+        scrollCollapse: true,
+        scroller: true,
         columns: [{
             data: "d",
             render : function(data, type, row) {
                 return format(data.replace(/-/g, "/"), "", row);
-            }            
+            }
         },
         { 
             data: "t",
@@ -650,8 +653,14 @@ function getDataTableData(json) {
             render : function(data, type, row) {
                 return format(data, "cm", row);
             }
-        }]
-    };    
+        },],
+        initComplete : function() {
+            var $row = $("#dataTable").DataTable().row(new Date().getHours()).node();
+            var elmRect = $row.getBoundingClientRect();
+            var theadRect = $("thead")[1].getBoundingClientRect();
+            $(".dataTables_scrollBody").scrollTop(elmRect.top + theadRect.top);
+        }
+    };
 }
 
 function getDataTableFormatter(h) {
@@ -659,7 +668,7 @@ function getDataTableFormatter(h) {
         const formatedData = data + suffix;
         const todayDateStr = getTodayStr().replace(/\//g, "-").split(" ")[0];
         if (todayDateStr == row.d && row.t == h) {
-            return `<span style='color:${COLOR.DEEPPINK};font-weight:bold;'>${formatedData}</span>`;
+            return `<span style='color:${COLOR.DEEPPINK};font-weight:bold; animation: flash 2s linear infinite;'>${formatedData}</span>`;
         } else if (todayDateStr == row.d && Math.abs(row.t - h) == 1) {
             return `<span style='color:${COLOR.MIDNIGHTBLUE};'>${formatedData}</span>`;
         } else {
