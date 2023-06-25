@@ -2,285 +2,32 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>  
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
 
-    <link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/google-calendar@6.1.8/index.global.min.js"></script>
+
+    <link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.13.2/themes/smoothness/jquery-ui.css" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@2.1.7/dist/loadingoverlay.min.js"></script>
 
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.0/main.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.0/main.min.js"></script>
-
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">    
 
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <script src="js/calendar.min.js"></script>
 
     <style>
-    body {
-        margin: 0 auto;
-        font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
-    }
-    #calendar {
-        width: 98%;
-        margin: 0 auto;
-    }
-    .fc-header-toolbar {
-        padding-top: 5px;
-        margin-bottom: 5px!important;
-    }
-    .fc-day-sat {
-        background-color: #eaf4ff;
-    }
-    .fc-day-sun {
-        background-color: #ffefff
-    }
-    .fc-col-header-cell {
-        top: 186px;
-        z-index: 9;
-        background-color: #e9e9e9;
-    }
-    .fc-header-toolbar {
-        position: -webkit-sticky;
-        position: sticky;
-    }
-    .fc-daygrid-day {
-        cursor: pointer;
-    }
-    .ui-dialog-titlebar {
-        background-color: #2C3E50;
-    }
-    .ui-dialog-title {
-        color: #ffffff;
-    }
-    .ui-dialog-titlebar-close {
-        margin-right: 5px!important;
-    }
-    @media screen and (max-width: 480px) {
-        .fc-event {
-            font-size: 15px;
-        }
-        .fc-header-toolbar {
-            top: 0px;
-            z-index: 10;
-            font-size: 10px;
-            background-color: #ffffff;
-        }
-        .fc-event-holiday-title {
-            padding-top: 15px;
-            font-size: 10px;
-        }
-    }
+    .fc-day-sat { background-color: #eaf4ff; }
+    .fc-day-sun { background-color: #ffeeff;  }
     </style>
 
-    <script>
-    const peakBorder = 35;
-
-    function getData() {
-        const year = new Date().getFullYear();
-        const area = $("#area option:selected").val();
-        const areaPref = area.substr(0, 2);
-        const areaPoi = area.substr(2);
-        const json_url = `https://churageographic.github.io/data/${areaPref}/${areaPoi}/${year}.json`;
-        //console.log(json_url);
-        $.get(json_url, function (response) {
-            if (response.warn || response.error) {
-                for (let key in response) {
-                    if (response.warn) toastr.warning(response.warn);
-                    else toastr.error(response.error);
-                }
-                return;
-            }
-            drawCalendar(response, year);
-        }, "json")
-        .fail(function(jqXHR) {
-            toastr.error(`「 ${$("#area option:selected").text()}の情報を取得できませんでした`)
-        });
-    }
-
-    var calendar;
-    function drawCalendar(data, year) {
-        if (calendar) calendar.destroy();
-        const calendarElm = document.getElementById("calendar");
-        calendar = new FullCalendar.Calendar(calendarElm, {
-            locale: "ja",
-            timeZone: "Asia/Tokyo",
-            headerToolbar: {
-                center: "title",
-                right: "prev,dayGridMonth,timeGridDay,listWeek,today,next",
-                left: "areaList"
-            },
-            buttonText: {
-                prev:     "<",
-                next:     ">",
-                prevYear: "<<",
-                nextYear: ">>",
-                today:    "今日",
-                month:    "月",
-                week:     "週",
-                day:      "日",
-                list:     "一覧"
-            },
-            contentHeight: "auto",
-            events: createEvent(data, year),
-            eventSources: [{
-                googleCalendarApiKey: "AIzaSyAPumIAAoeFEZrQujFVJq9SCbxAc649_Hg",
-                googleCalendarId: "japanese__ja@holiday.calendar.google.com",
-                display: "background",
-                backgroundColor: "#ffccff",
-                className: "fc-event-holiday-title"
-            }],
-            dayCellContent: function(e) {
-                e.dayNumberText = e.dayNumberText.replace("日", "");
-            },
-            validRange: function() {
-                return {
-                    start: "2021-01-01",
-                    end: "2021-12-31"
-            }},
-            customButtons: {
-                areaList: {
-                    text: $("#area option:selected").text(),
-                    click: function() {
-                        $("#areaDialog").dialog({
-                            modal: true,
-                            title: "エリア選択",
-                            closeOnEscape: true,
-                            position: {my: "left top", at: "left top", of: ".fc-view-harness"},
-                            open: function(event, ui) {
-                                $("#area").select2("open");
-                            }
-                        });
-                    }
-                }
-            },
-            dateClick: function(info) {
-                toastr.info(info.dateStr);
-            },
-            eventClick: function(info) {
-                toastr.info(info.event.title);
-            },
-            loading: function(isLoading) {
-                if (isLoading) {
-                    $.LoadingOverlay("show", {
-                        image: "",
-                        maxSize: 50,
-                        fontawesome: "fa fa-spinner fa-pulse",
-                        fontawesomeAnimation: "rotate_right",
-                        fontawesomeColor: "#15A0C8",
-                    });
-                } else {
-                    $.LoadingOverlay("hide");
-                }
-            },
-            eventSourceFailure: function(errorObj) {
-                $.LoadingOverlay("hide");
-            }
-        });
-        calendar.render();
-    }
-
-    function createEvent(data, year) {
-        var events = [];
-        for (var i = 0; i < data.length; i++) {
-            const tmpLevel = data[i].l;
-            if (tmpLevel >= peakBorder) continue;
-            const tmpTime = String(data[i].t).padStart(2, "0");
-            const tmpDateTime = data[i].d + " " + tmpTime + ":00";
-            const event = { 
-                id: i + 1,
-                title: tmpLevel + "cm",
-                start: tmpDateTime,
-                backgroundColor: getTidesColor(tmpLevel)
-            };
-            events.push(event);
-        }
-        return events;
-    }
-
-    function getTidesColor(level) {
-        const lineColor = "#15A0C8";
-        const lineColorPeak = "#228b22";
-        const lineColorPeakMid = "#ff8c00";
-        const lineColorPeakHigh = "#ff1493";
-        const peakBorderMid = 15;
-        const peakBorderHigh = 0;
-
-        return level <= peakBorderHigh
-            ? lineColorPeakHigh : level <= peakBorderMid
-            ? lineColorPeakMid : level <= peakBorder
-            ? lineColorPeak : lineColor;
-    }
-
-    function initToast() {
-        toastr.options = {
-            positionClass: "toast-top-center",
-            showDuration: "50",
-            hideDuration: "100",
-            timeOut: "1500",
-        };
-    }
-
-    function initAreaList() {
-        const prefList = {
-            "沖縄" : [
-                { text: "我喜屋", value: "4701" },
-                { text: "渡久地", value: "4704" },
-                { text: "東", value: "4733" },
-                { text: "石川", value: "4707" },
-                { text: "那覇", value: "4705" },
-                { text: "仲里", value: "4726" },
-                { text: "平良", value: "4713" },
-                { text: "長山", value: "4714" },
-                { text: "石垣", value: "4715" },
-                { text: "船越", value: "4737" },
-                { text: "白浜", value: "4720" },
-                { text: "比川", value: "4717" }
-            ]
-        };
-
-        var area = $("#area");
-        var opts = new Array();
-        Object.keys(prefList).forEach(function(prefKey, prefIndex) {
-            var $optgroup = $("<optgroup>").prop("label", prefKey);
-            Object.keys(this[prefKey]).forEach(function(areaKey, araIndex) {
-                $optgroup.append($("<option>")
-                .text(this[areaKey].text)
-                .val(this[areaKey].value)
-                .prop("selected", this[areaKey].value == "4704"));
-            }, this[prefKey]);
-            opts.push($optgroup);
-        }, prefList);
-        area.append(opts);
-
-        area.change(function() {
-            $(".fc-areaList-button").text($("#area option:selected").text());
-            $("#areaDialog").dialog("close");
-            getData();
-        });
-
-        $(document).ready(function() {
-            area.select2();
-        });
-
-        $(document).on( "click", ".ui-widget-overlay", function(){
-            $(this).prev().find(".ui-dialog-content").dialog("close");
-        });
-    }
-
-    $(function(){
-        initToast();
-        initAreaList();
-        getData();
-    });
-
-    </script>
   </head>
   <body>
     <div id="calendar"></div>
