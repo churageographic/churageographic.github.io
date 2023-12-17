@@ -1,6 +1,6 @@
 const peakBorder = 35;
 const calendarDateFrom = "2021-01-01";
-const calendarDateTo = "2023-12-31";
+const calendarDateTo = "2024-12-31";
 
 async function getDataAndDrawCalendar() {
     const year = new Date().getFullYear();
