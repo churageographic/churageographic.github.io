@@ -28,7 +28,7 @@ function getJsonData(year, area) {
         const areaPref = area.substr(0, 2);
         const areaPoi = area.substr(2);
         const json_url = `https://churageographic.github.io/data/${areaPref}/${areaPoi}/${year}.json`;
-//            console.log(json_url);
+        //console.log(json_url);
         $.get(json_url, function (response) {
             if (response.warn || response.error) reject(response);    
             else resolve(response);
@@ -76,6 +76,7 @@ function getCalendarHeight() {
 }
 
 var calendar;
+var tmpY = new Date().getFullYear();
 
 function drawCalendar(events) {
     if (calendar) calendar.destroy();
@@ -123,6 +124,32 @@ function drawCalendar(events) {
                         position: {my: "left top", at: "left top", of: ".fc-view-harness"},
                         open: function(event, ui) {
                             $("#area").select2("open");
+                        }
+                    });
+                }
+            }
+        },
+        datesSet: async info => {
+            let midDate = new Date((info.start.getTime() + info.end.getTime()) / 2);
+            let year = midDate.getFullYear();
+            if (tmpY != year) {
+                tmpY = year;
+                const area = $("#area option:selected").val();
+                const strageKey = area + year;
+                if (sessionStorage.getItem(strageKey) == null) {
+                    await getJsonData(year, area)
+                    .then((response) => {
+                        let events = createEvents(response);
+                        sessionStorage.setItem(strageKey, /*JSON.stringify(events)*/null);
+                        info.view.calendar.batchRendering(function() {
+                            events.forEach( async event => {
+                                await info.view.calendar.addEvent(event);
+                            });
+                        });
+                    }, (response) => {
+                        for (let key in response) {
+                            if (response.warn) toastr.warning(response.warn);
+                            else toastr.error(response.error);
                         }
                     });
                 }
