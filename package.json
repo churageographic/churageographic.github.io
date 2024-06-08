@@ -1,0 +1,8 @@
+{
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "scripts": {
+    "server": "http-server ./docs -c-1 . --ssl --key ~/cert/localhost+1-key.pem --cert ~/cert/localhost+1.pem"
+  }
+}
