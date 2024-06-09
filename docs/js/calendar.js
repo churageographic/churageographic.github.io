@@ -27,7 +27,9 @@ function getJsonData(year, area) {
     return new Promise((resolve, reject) => {
         const areaPref = area.substr(0, 2);
         const areaPoi = area.substr(2);
-        const json_url = `https://${location.host}/data/${areaPref}/${areaPoi}/${year}.json`;
+        var host = !location.host ? "churageographic.github.io" : location.host;
+        if (host == "churageographic.com") host += "/tides";
+        const json_url = `https://${host}/data/${areaPref}/${areaPoi}/${year}.json`;
         //console.log(json_url);
         $.get(json_url, function (response) {
             if (response.warn || response.error) reject(response);    
