@@ -3,3 +3,5 @@ tools/
 test/
 
 node_modules/
+
+data_converter/data/[0-9][0-9][0-9][0-9]/
