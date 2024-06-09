@@ -22,20 +22,28 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
     <script src="js/calendar.min.js"></script>
-
-    <style>
-    .fc-day-sat { background-color: #eaf4ff; }
-    .fc-day-sun { background-color: #ffeeff;  }
-    </style>
-
+    <link href="css/calendar.min.css" rel="stylesheet">
   </head>
+
   <body>
-    <div id="calendar"></div>
-    <div id="areaDialog" style="display:none;">
-        <select id="area" style="width: 100%"></select>
+
+    <div class="contents">
+      <header>
+        <a href="/"><img src="/img/logo.png" class="logo"></a>
+      </header>
+
+      <div class="controller">
+        <div id="calendar"></div>
+        <div id="areaDialog" style="display:none;">
+            <select id="area" style="width: 100%"></select>
+        </div>
+      </div>
+
+      <div class="copyright">
+        Copyright 2024, Chura Geographic Okinawa Japan
+      </div>  
+
     </div>
-    <div class="copyright">
-      Copyright 2024, Chura Geographic Okinawa Japan
-    </div>
+
   </body>
 </html>

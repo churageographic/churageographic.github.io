@@ -59,9 +59,9 @@ function createEvents(data) {
 
 function getTidesColor(level) {
     const lineColor = "#15A0C8";
-    const lineColorPeak = "#228b22";
-    const lineColorPeakMid = "#ff8c00";
-    const lineColorPeakHigh = "#ff1493";
+    const lineColorPeak = "#36aaf5"; // "#228b22";
+    const lineColorPeakMid = "#8cffbd"; // "#ff8c00";
+    const lineColorPeakHigh = "#e8ff29"; // "#ff1493";
     const peakBorderMid = 15;
     const peakBorderHigh = 0;
 

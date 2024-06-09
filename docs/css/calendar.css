@@ -1,0 +1,66 @@
+body {
+    background-color: lightslategrey;
+}
+
+header {
+    background-color: rgba(21, 67, 96, 0.9);
+}
+
+.fc-day {
+    color: #ffffff;
+}
+
+.fc-day-sat {
+    background-color: #698aab;
+}
+
+.fc-day-sun {
+    background-color: #895b8a;
+}
+
+:root {
+    --fc-today-bg-color: #cd985f;
+    --fc-bg-event-opacity: 0.6;
+}
+
+.fc-toolbar-title {
+    color: #ffffff;
+}
+
+.fc-col-header-cell .fc-col-header-cell-cushion {
+    color: #ffffff;
+}
+
+.fc-event {
+    color: #ffffff;
+}
+
+.fc-event-title {
+    color: #ffffff;
+}
+
+.fc-day-grid-event:hover {
+    background-color: lightslategrey;
+}
+
+.fc-list-item:hover td {
+    background-color: lightslategrey;
+}
+
+.contents {
+    text-align: center;
+}
+
+.controller {
+    background-color: lightslategrey;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
+.copyright {
+    background-color: rgba(21, 67, 96, 0.9);
+    color: #ffffff;
+    font-size: calc(55% + 0.5vw);
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
