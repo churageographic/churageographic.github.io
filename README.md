@@ -2,17 +2,27 @@
 
 * [TidesScrapeArea7](https://docs.google.com/spreadsheets/d/1bvcqXbE-apl_1dp5tXze-TtzQs8qx9bBj2dre2ttA0g/edit#gid=0) でDrive保存されているCSVをダウンロード
 * `./data_converter/data` 以下へ解凍
+  ```
+  unzip ~/Downloads/drive-download-*.zip -d ~/Programs/churageographic.github.io/data_converter/data
+  ```
 
 # 作業ディレクトリ移動
 
 ```
-cd data_converter
+cd ~/Programs/churageographic.github.io/data_converter
 ```
+
+# 月別のCSV(対象外)を削除
+
+```
+find ./data -type f ! -name "*2026*" -delete
+```
+
 
 # 月別のCSVを年間結合
 
 ```
-python3 merge_csv.py data 2025
+python3 merge_csv.py data 2026
 ```
 
 # 年間のCSVをJSON変換
