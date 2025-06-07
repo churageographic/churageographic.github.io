@@ -65,12 +65,8 @@ const getCachedTideData = (cacheKey: string, date: string): TideResponse | null 
     if (now <= expireDate) {
       const cachedData = localStorage.getItem(cacheKey);
       if (cachedData) {
-        console.log('Using cached data for:', cacheKey);
         const cachedResult = JSON.parse(cachedData);
-        console.log('Cached data format:', cachedResult.data[0]);
-        console.log('Filtering for date:', date);
         const todayData = filterTideData(cachedResult.data, date);
-        console.log('Filtered data:', todayData);
         return {
           data: todayData,
           area: cachedResult.area
@@ -94,21 +90,23 @@ export const fetchTideData = async (areaId: string, date: string): Promise<TideR
   const areaPoi = areaCode.substr(2);
   const host = 'churageographic.github.io';
   const jsonUrl = `https://${host}/data/${areaPref}/${areaPoi}/${year}.json`;
-  console.log('Fetching tide data from:', jsonUrl);
-  console.log('Request parameters:', { areaId, date, year, areaCode });
+  console.log(`Fetching tide data from: ${jsonUrl}`);
 
-  const data = await getTideData(jsonUrl);
-  console.log('Fetched data format:', data[0]);
-  console.log('Filtering for date:', date);
-  const todayData = filterTideData(data, date);
-  console.log('Filtered data:', todayData);
-  const area = getArea(areaId);
-  cacheTideData(cacheKey, data, area);
+  try {
+    const data = await getTideData(jsonUrl);
+    console.log(`Successfully fetched tide data for ${areaId} (${date})`);
+    const todayData = filterTideData(data, date);
+    const area = getArea(areaId);
+    cacheTideData(cacheKey, data, area);
 
-  return {
-    data: todayData,
-    area
-  };
+    return {
+      data: todayData,
+      area
+    };
+  } catch (error) {
+    console.error(`Failed to fetch tide data for ${areaId} (${date}):`, error);
+    throw error;
+  }
 }
 
 export const fetchAreas = async (): Promise<Area[]> => {

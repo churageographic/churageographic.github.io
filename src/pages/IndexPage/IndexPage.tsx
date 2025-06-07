@@ -6,6 +6,8 @@ import TideChart from '@/components/TideChart/TideChart';
 import TideTable from '@/components/TideTable/TideTable';
 import { fetchTideData, fetchAreas } from '@/services/tideService';
 
+
+
 const IndexPage: React.FC = () => {
   const [area, setArea] = useState<string>('');
   const [date, setDate] = useState<Date | null>(new Date());
@@ -37,7 +39,6 @@ const IndexPage: React.FC = () => {
             month: '2-digit',
             day: '2-digit'
           }).replace(/\//g, '-');
-          console.log('Fetching data for date:', formattedDate);
           const response = await fetchTideData(area, formattedDate);
           setTideData(response.data);
         } catch (error) {
@@ -51,32 +52,47 @@ const IndexPage: React.FC = () => {
   }, [date, area]);
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom>
-        潮位情報
-      </Typography>
-
-      <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
-        <AreaSelector value={area} onChange={setArea} />
+    <Box sx={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '20px',
+      p: 3,
+      width: '100%'
+    }}>
+      <Box sx={{
+        display: 'flex',
+        gap: '20px',
+        mb: 3
+      }}>
+        <AreaSelector
+          value={area}
+          onChange={(newArea) => setArea(newArea)}
+        />
         <DateSelector
           value={date}
-          onChange={setDate}
-          minDate={new Date()}
+          onChange={(newDate) => setDate(newDate)}
           label="日付選択"
         />
       </Box>
 
       {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '200px'
+        }}>
           <CircularProgress />
         </Box>
       ) : (
-        <>
-          <Box sx={{ mb: 3 }}>
-            <TideChart data={tideData} />
-          </Box>
+        <Box sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '20px'
+        }}>
+          <TideChart data={tideData} />
           <TideTable data={tideData} />
-        </>
+        </Box>
       )}
     </Box>
   );

@@ -4,7 +4,9 @@ import { Line } from 'react-chartjs-2';
 import { Chart, registerables } from 'chart.js';
 import { ChartData, ChartOptions } from 'chart.js';
 import { createTideChartData, createTideChartOptions } from '@/utils/chartUtils';
-import { TideData } from '@/types/tide';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+
+Chart.register(...registerables, ChartDataLabels);
 
 Chart.register(...registerables);
 
