@@ -71,7 +71,6 @@ const IndexPage: React.FC = () => {
         <DateSelector
           value={date}
           onChange={(newDate) => setDate(newDate)}
-          label="日付選択"
         />
       </Box>
 

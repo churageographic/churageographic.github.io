@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Select, MenuItem } from '@mui/material';
+import { Select, MenuItem, Box, FormControl, InputLabel } from '@mui/material';
 import { Area } from '@/types/tide';
 import { fetchAreas } from '@/services/tideService';
 
@@ -66,26 +66,29 @@ const AreaSelector: React.FC<AreaSelectorProps> = ({ value, onChange }) => {
   }, []);
 
   return (
-    <Select
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      displayEmpty
-      sx={{
-        minWidth: 200,
-        '& .MuiOutlinedInput-notchedOutline': {
-          borderColor: 'rgba(0, 0, 0, 0.23)',
-        },
-      }}
-    >
-      <MenuItem value="">
-        <em>エリアを選択</em>
-      </MenuItem>
-      {areas.map((area) => (
-        <MenuItem key={area.id} value={area.id}>
-          {area.name}
-        </MenuItem>
-      ))}
-    </Select>
+    <Box>
+      <FormControl variant="outlined" fullWidth>
+        <InputLabel id="area-select-label">エリア選択</InputLabel>
+        <Select
+          labelId="area-select-label"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          label="エリア選択"
+          sx={{
+            minWidth: 200,
+          }}
+        >
+          <MenuItem value="">
+            <em>エリアを選択</em>
+          </MenuItem>
+          {areas.map((area) => (
+            <MenuItem key={area.id} value={area.id}>
+              {area.name}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+    </Box>
   );
 };
 
