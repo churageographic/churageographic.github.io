@@ -154,6 +154,44 @@ export const createTideChartOptions = (): ChartOptions<'line'> => ({
   }
 });
 
+// 現在時刻の縦線を描画するChart.jsプラグイン
+export const verticalLinePlugin = {
+  id: 'verticalLine',
+  afterDatasetDraw: (chart: any) => {
+    const dataset = chart.data.datasets[0];
+    if (!dataset || !chart.getDatasetMeta(0).data.length) return;
+
+    const ctx = chart.ctx;
+    ctx.save();
+
+    // 現在時刻
+    const now = new Date();
+    const hour = now.getHours();
+    const minute = now.getMinutes();
+
+    // x軸のデータ点
+    const meta = chart.getDatasetMeta(0);
+    const elements = meta.data;
+    if (hour >= elements.length - 1) {
+      ctx.restore();
+      return;
+    }
+
+    // 現在時刻のx座標を補間で算出
+    const orgX = elements[hour].x;
+    const nextX = elements[hour + 1].x;
+    const currX = orgX + ((nextX - orgX) / 60) * minute;
+
+    ctx.strokeStyle = '#FF1493'; // COLOR.DEEPPINK 相当
+    ctx.lineWidth = (elements[hour].options?.borderWidth || 2) / 1.5;
+    ctx.beginPath();
+    ctx.moveTo(currX, chart.chartArea.top);
+    ctx.lineTo(currX, chart.chartArea.bottom);
+    ctx.stroke();
+    ctx.restore();
+  }
+};
+
 // 0~-30cmの範囲を塗りつぶすChart.jsプラグイン
 export const drawBackgroundPlugin = {
   id: 'drawBackground',
