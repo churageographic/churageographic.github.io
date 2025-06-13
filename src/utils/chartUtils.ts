@@ -15,6 +15,36 @@ const COLOR = {
 // 関数定義
 const pointSize = 3;
 
+// 画面幅に応じてラベル・データラベルの間引き幅を返す
+export function getTickDivision(): number {
+  if (window.matchMedia('(min-width: 1200px)').matches) {
+    return 1;
+  } else if (window.matchMedia('(min-width: 960px)').matches) {
+    return 2;
+  } else if (window.matchMedia('(min-width: 720px)').matches) {
+    return 2;
+  } else if (window.matchMedia('(min-width: 480px)').matches) {
+    return 3;
+  } else {
+    return 3;
+  }
+}
+
+// 画面幅に応じてx軸ラベルの最大数を返す
+export function getMaxTickLimit(): number {
+  if (window.matchMedia('(min-width: 1200px)').matches) {
+    return 25;
+  } else if (window.matchMedia('(min-width: 960px)').matches) {
+    return 13;
+  } else if (window.matchMedia('(min-width: 720px)').matches) {
+    return 13;
+  } else if (window.matchMedia('(min-width: 480px)').matches) {
+    return 9;
+  } else {
+    return 9;
+  }
+}
+
 // フォントサイズを画面サイズに応じて調整
 const getFontSizeScale = () => {
   const width = window.innerWidth;
@@ -32,7 +62,7 @@ Chart.register(ChartDataLabels);
 // データラベルの表示条件を満たすためのヘルパー関数
 const shouldDisplayLabel = (context: any): boolean => {
   const index = context.dataIndex;
-  return index % 2 === 0;
+  return index % getTickDivision() === 0;
 };
 
 export const createTideChartData = (data: { d: string; t: number; l: number }[]) => {
@@ -90,12 +120,12 @@ export const createTideChartOptions = (): ChartOptions<'line'> => ({
         maxRotation: 0,
         minRotation: 0,
         color: COLOR.WHITE,
-        font: { size: 12 },
+        font: { size: getFontSizeScale() },
         stepSize: 3,
-        maxTicksLimit: 9, // 0から24までの3時間ごとの9個のラベル
-        callback: function(this: any, value: any) {
-          // 3時間ごとに表示（0, 3, 6, 9, 12, 15, 18, 21, 24）
-          return value % 3 === 0 ? value : null;
+        maxTicksLimit: getMaxTickLimit(), // 0から24までの3時間ごとの9個のラベル
+        callback: function(this: any, value: any, index: number) {
+          // 画面幅に応じてラベル間引き
+          return index % getTickDivision() === 0 ? value : null;
         }
       },
       grid: {
@@ -107,7 +137,7 @@ export const createTideChartOptions = (): ChartOptions<'line'> => ({
     y: {
       ticks: {
         stepSize: 30,
-        font: { size: 12 },
+        font: { size: getFontSizeScale() },
         color: COLOR.LIGHTGRAY,
       },
       min: -30,
