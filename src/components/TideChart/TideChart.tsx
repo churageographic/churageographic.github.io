@@ -26,7 +26,7 @@ const TideChart: React.FC<TideChartProps> = ({ data }) => {
   }, [data]);
 
   return (
-    <Box sx={{ width: '100%', height: '400px' }}>
+    <Box sx={{ width: '100%', height: '400px', backgroundColor: 'lightslategrey' }}>
       {chartData && chartOptions && (
         <Line data={chartData} options={chartOptions} plugins={[drawBackgroundPlugin, verticalLinePlugin]} />
       )}

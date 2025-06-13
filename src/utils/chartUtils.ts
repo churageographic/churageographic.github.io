@@ -5,8 +5,11 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
 // 定数定義
 const COLOR = {
   WHITE: '#ffffff',
-  LIGHTGRAY: '#d3d3d3',
-  OCEAN: '#1976d2'
+  GRAY: "#9e9e9e",
+  DARKGRAY: "#1B2631",
+  LIGHTGRAY: "#AEB6BF",  
+  OCEAN: 'rgba(0, 0, 255, 0.2)',
+  REEF: 'rgba(21, 67, 96, 0.3)'
 } as const;
 
 // 関数定義
@@ -62,6 +65,7 @@ export const createTideChartData = (data: { d: string; t: number; l: number }[])
 };
 
 export const createTideChartOptions = (): ChartOptions<'line'> => ({
+  backgroundColor: 'lightslategrey',
   animation: false,
   responsive: true,
   maintainAspectRatio: false,
@@ -110,7 +114,7 @@ export const createTideChartOptions = (): ChartOptions<'line'> => ({
       max: 240,
       grid: {
         color: function(context) {
-          return COLOR.LIGHTGRAY;
+          return context.tick.value === 0 ? COLOR.WHITE : COLOR.LIGHTGRAY;
         }
       }
     }
@@ -140,7 +144,7 @@ export const createTideChartOptions = (): ChartOptions<'line'> => ({
     },
     datalabels: {
       display: shouldDisplayLabel,
-      color: COLOR.OCEAN,
+      color: COLOR.WHITE,
       font: {
         size: getFontSizeScale(),
         family: 'Arial',
@@ -205,7 +209,7 @@ export const drawBackgroundPlugin = {
     const top = yscale.getPixelForValue(0);
     const bottom = yscale.getPixelForValue(-30);
     ctx.save();
-    ctx.fillStyle = COLOR.OCEAN + '33'; // 透明度付きOCEAN色
+    ctx.fillStyle = COLOR.REEF; // 0〜-30cmはREEF色
     ctx.fillRect(left, top, right - left, bottom - top);
     ctx.restore();
   }
