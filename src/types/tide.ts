@@ -7,7 +7,7 @@ export interface TideData {
 export interface Area {
   id: string;
   name: string;
-  port: string;
+  port?: string;
 }
 
 export interface TideResponse {
