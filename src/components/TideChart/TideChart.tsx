@@ -3,7 +3,7 @@ import { Box } from '@mui/material';
 import { Line } from 'react-chartjs-2';
 import { Chart, registerables } from 'chart.js';
 import { ChartData, ChartOptions } from 'chart.js';
-import { createTideChartData, createTideChartOptions } from '@/utils/chartUtils';
+import { createTideChartData, createTideChartOptions, drawBackgroundPlugin } from '@/utils/chartUtils';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 Chart.register(...registerables, ChartDataLabels);
@@ -28,7 +28,7 @@ const TideChart: React.FC<TideChartProps> = ({ data }) => {
   return (
     <Box sx={{ width: '100%', height: '400px' }}>
       {chartData && chartOptions && (
-        <Line data={chartData} options={chartOptions} />
+        <Line data={chartData} options={chartOptions} plugins={[drawBackgroundPlugin]} />
       )}
     </Box>
   );

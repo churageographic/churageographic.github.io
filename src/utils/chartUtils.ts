@@ -154,6 +154,25 @@ export const createTideChartOptions = (): ChartOptions<'line'> => ({
   }
 });
 
+// 0~-30cmの範囲を塗りつぶすChart.jsプラグイン
+export const drawBackgroundPlugin = {
+  id: 'drawBackground',
+  beforeDraw: (chart: any) => {
+    const ctx = chart.ctx;
+    const xscale = chart.scales["x"];
+    const yscale = chart.scales["y"];
+    if (!xscale || !yscale) return;
+    const left = xscale.left;
+    const right = xscale.right;
+    const top = yscale.getPixelForValue(0);
+    const bottom = yscale.getPixelForValue(-30);
+    ctx.save();
+    ctx.fillStyle = COLOR.OCEAN + '33'; // 透明度付きOCEAN色
+    ctx.fillRect(left, top, right - left, bottom - top);
+    ctx.restore();
+  }
+};
+
 let gradient: CanvasGradient | null = null;
 
 export const getGradient = (ctx: CanvasRenderingContext2D, chartArea: { left: number; right: number; top: number; bottom: number }) => {
